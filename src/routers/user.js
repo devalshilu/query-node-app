@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/User')
 const Subject = require('../models/Subject')
 const Student = require('../models/Student')
+const Query = require('../models/Query')
 const auth = require('../middleware/auth')
 
 const router = express.Router()
@@ -45,6 +46,14 @@ router.get('/subject', auth, async (req, res) => {
         res.status(400).send(error)
     }
 })
+router.get('/history', auth, async (req, res) => {
+    try {
+        const data = await Query.find({ user: req.user._id });
+        res.send(data)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+})
 router.post('/runQuery', auth, async (req, res) => {
     var input = req.body.map((ele) => {
         var one = {};
@@ -56,6 +65,9 @@ router.post('/runQuery', auth, async (req, res) => {
         return one;
     })
     try {
+        const Dataquery = { queryData: req.body, user: req.user._id }
+        const query = new Query(Dataquery)
+        await query.save()
         const data = await Student.find({
             $and: input
         });
