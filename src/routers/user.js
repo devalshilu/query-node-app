@@ -48,7 +48,7 @@ router.get('/subject', auth, async (req, res) => {
 })
 router.get('/history', auth, async (req, res) => {
     try {
-        const data = await Query.find({ user: req.user._id });
+        const data = await Query.find({ user: req.user._id }).populate('user');
         res.send(data)
     } catch (error) {
         res.status(400).send(error)
