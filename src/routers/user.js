@@ -6,6 +6,9 @@ const Query = require('../models/Query')
 const auth = require('../middleware/auth')
 
 const router = express.Router()
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
 
 router.post('/addusers', async (req, res) => {
     // Create a new user
@@ -23,6 +26,19 @@ router.post('/addsubject', async (req, res) => {
     try {
         const subject = new Subject(req.body)
         await subject.save()
+        Student.find({}).exec((err, docs) => {
+            if (err || docs == undefined || docs.length == 0)
+                ;
+            else {
+                docs.forEach((doc) => {
+                    let obj = {};
+                    obj[subject.name] = getRandomInt(100)
+                    Student.findOneAndUpdate({ _id: doc._id },
+                        { "$push": { "result": obj } })
+                        .exec();
+                });
+            }
+        })
         res.status(201).send(subject)
     } catch (error) {
         res.status(400).send(error)
